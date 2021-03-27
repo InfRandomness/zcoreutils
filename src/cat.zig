@@ -35,6 +35,7 @@ pub fn main() !void {
         fileContent = try fetch_file_content(&gpa.allocator, ops.positionals[ops.positionals.len - 1]);
         //try stdout.writer().print("filename = {s}", .{ops.positionals[ops.positionals.len]});
         try stdout.print("{s}\n", .{fileContent});
+        gpa.allocator.free(fileContent);
     }
 }
 
