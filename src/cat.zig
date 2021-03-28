@@ -28,6 +28,7 @@ pub fn main() !void {
     if (ops.positionals.len == 0) {
             var line = try stdin.readAllAlloc(&gpa.allocator, std.math.maxInt(usize));
             try stdout.print("{s}\n", .{line});
+            gpa.allocator.free(line);
     } else {
         fileContent = try fetch_file_content(&gpa.allocator, ops.positionals[ops.positionals.len - 1]);
         //try stdout.writer().print("filename = {s}", .{ops.positionals[ops.positionals.len]});
