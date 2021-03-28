@@ -26,11 +26,8 @@ pub fn main() !void {
     defer _ = gpa.deinit();
 
     if (ops.positionals.len == 0) {
-
-        while (true) {
-            var line = try stdin.readUntilDelimiterAlloc(&gpa.allocator, '\n', std.math.maxInt(usize));
+            var line = try stdin.readAllAlloc(&gpa.allocator, std.math.maxInt(usize));
             try stdout.print("{s}\n", .{line});
-        }
     } else {
         fileContent = try fetch_file_content(&gpa.allocator, ops.positionals[ops.positionals.len - 1]);
         //try stdout.writer().print("filename = {s}", .{ops.positionals[ops.positionals.len]});
