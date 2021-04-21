@@ -26,13 +26,13 @@ pub fn main() !void {
         try stdout.print("{s}\n", .{line});
         gpa.allocator.free(line);
     } else {
-        var fileContent = try fetch_file_content(&gpa.allocator, ops.positionals[ops.positionals.len - 1]);
+        var fileContent = try fetchFileContent(&gpa.allocator, ops.positionals[ops.positionals.len - 1]);
         try stdout.print("{s}\n", .{fileContent});
         gpa.allocator.free(fileContent);
     }
 }
 
-fn fetch_file_content(allocator: *std.mem.Allocator, path: []const u8) ![]u8 {
+fn fetchFileContent(allocator: *std.mem.Allocator, path: []const u8) ![]u8 {
     const size = math.maxInt(usize);
     const file = try std.fs.cwd().openFile(path, .{ .read = true });
     defer file.close();
