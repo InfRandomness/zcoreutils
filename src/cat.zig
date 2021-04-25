@@ -4,9 +4,10 @@ const io = std.io;
 const heap = std.heap;
 const math = std.math;
 
+const stdout = io.getStdOut().writer();
+
 pub fn main() !void {
     var argsAllocator = std.heap.page_allocator;
-    const stdout = io.getStdOut().writer();
     const stdin = io.getStdIn().reader();
 
     const ops = try args.parseForCurrentProcess(struct {
@@ -26,15 +27,16 @@ pub fn main() !void {
         try stdout.print("{s}\n", .{line});
         gpa.allocator.free(line);
     } else {
-        var fileContent = try fetchFileContent(&gpa.allocator, ops.positionals[ops.positionals.len - 1]);
-        try stdout.print("{s}\n", .{fileContent});
-        gpa.allocator.free(fileContent);
+        try fetchFileContent(ops.positionals[ops.positionals.len - 1]);
     }
 }
 
-fn fetchFileContent(allocator: *std.mem.Allocator, path: []const u8) ![]u8 {
-    const size = math.maxInt(usize);
+fn fetchFileContent(path: []const u8) !void {
+    var buffer: [4096]u8 = undefined;
     const file = try std.fs.cwd().openFile(path, .{ .read = true });
-    defer file.close();
-    return try file.reader().readAllAlloc(allocator, size);
+    while (true) {
+        const len = try file.reader().read(&buffer);
+        if (len == 0) break;
+        try stdout.print("{s}", .{buffer[0..len]});
+    }
 }
