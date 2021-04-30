@@ -1,7 +1,7 @@
 const std = @import("std");
 const writer = std.io.getStdOut.writer();
 
-pub fn build(b: *std.build.Builder) void {
+pub fn build(b: *std.build.Builder) !void {
     // Standard target options allows the person running `zig build` to choose
     // what target to build for. Here we do not override the defaults, which
     // means any target is allowed, and the default is native. Other options
@@ -12,45 +12,41 @@ pub fn build(b: *std.build.Builder) void {
     // between Debug, ReleaseSafe, ReleaseFast, and ReleaseSmall.
     const mode = b.standardReleaseOptions();
 
-    var src: std.fs.Dir = undefined;
+    const src = std.fs.cwd().openDir("src", .{ .iterate = true }) catch |err| {
+        _ = switch(err) {
+            error.FileNotFound => std.debug.print("Directory has not been found.", .{}),
+            else => std.debug.print("An error has occured", .{}),
+        };
+        return;
+    };
 
-    //TODO: Found a way to iterate over every files in that src/ directory
-    // if(std.fs.cwd().openDir("src/", .{ .iterate = true })) |dir| {
-    //     src = dir;
-    //     defer src.close();
-    // } else |err| switch(err) {
-    //     std.fs.Dir.OpenError.FileNotFound => {
-    //         std.debug.print("Directory has not been found.", .{});
-    //     },
-    //     else => {
-    //         std.debug.print("An error has occured", .{});
-    //     }
-    // }
-    
-    // while(src.iterate().next()) |file| {
-    //     // TODO: Find the best way to hand the error in the while loop
-    //     std.debug.print(file);
-    // }
+    var alloc_print = std.heap.GeneralPurposeAllocator(.{}){};
+    defer _ = alloc_print.deinit();
 
-    const cat = b.addExecutable("cat", "src/cat.zig");
-    cat.setTarget(target);
-    cat.setBuildMode(mode);
-    cat.addPackagePath("args", "libs/zig-args/args.zig");
-    cat.install();
-    const run_cat = cat.run();
-    
-    const mkdir = b.addExecutable("mkdir", "src/mkdir.zig");
-    mkdir.setTarget(target);
-    mkdir.setBuildMode(mode);
-    mkdir.addPackagePath("args", "libs/zig-args/args.zig");
-    mkdir.install();
-    const run_mkdir = mkdir.run();
+    var iterator = src.iterate();
+    while (try iterator.next()) |file| {
+        var token = std.mem.tokenize(file.name, ".");
+        const name = token.next();
 
-    run_cat.step.dependOn(b.getInstallStep());
-    if (b.args) |args| {
-        run_cat.addArgs(args);
+        var alloc_join = std.heap.GeneralPurposeAllocator(.{}){};
+        defer _ = alloc_join.deinit();
+        
+        const path = try std.fs.path.join(&alloc_join.allocator, &[_][]const u8{"src", file.name});
+        const exe = b.addExecutable(file.name, path);
+        alloc_join.allocator.free(path);
+        exe.setTarget(target);
+        exe.setBuildMode(mode);
+        exe.addPackagePath("args", "libs/zig-args/args.zig");
+        exe.install();
+        const run = exe.run();
+        run.step.dependOn(b.getInstallStep());
+        if (b.args) |args| run.addArgs(args);
+
+        const name_alloc = try std.fmt.allocPrint(&alloc_print.allocator, "{s}: run", .{ name });
+        const description_alloc = try std.fmt.allocPrint(&alloc_print.allocator, "Run {s}", .{ name });
+        const step = b.step(name_alloc, description_alloc);
+        alloc_print.allocator.free(name_alloc);
+        alloc_print.allocator.free(description_alloc);
+        step.dependOn(&run.step);
     }
-
-    const run_step = b.step("run", "Run the app");
-    run_step.dependOn(&run_cat.step);
 }
