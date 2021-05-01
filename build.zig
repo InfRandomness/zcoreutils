@@ -20,9 +20,6 @@ pub fn build(b: *std.build.Builder) !void {
         return;
     };
 
-    var alloc_print = std.heap.GeneralPurposeAllocator(.{}){};
-    defer _ = alloc_print.deinit();
-
     var iterator = src.iterate();
     while (try iterator.next()) |file| {
         var token = std.mem.tokenize(file.name, ".");
@@ -42,11 +39,7 @@ pub fn build(b: *std.build.Builder) !void {
         run.step.dependOn(b.getInstallStep());
         if (b.args) |args| run.addArgs(args);
 
-        const name_alloc = try std.fmt.allocPrint(&alloc_print.allocator, "{s}: run", .{ name });
-        const description_alloc = try std.fmt.allocPrint(&alloc_print.allocator, "Run {s}", .{ name });
-        const step = b.step(name_alloc, description_alloc);
-        alloc_print.allocator.free(name_alloc);
-        alloc_print.allocator.free(description_alloc);
+        const step = b.step(b.fmt("{s}: run", .{ name }), b.fmt("Run {s}", .{ name }));
         step.dependOn(&run.step);
     }
 }
