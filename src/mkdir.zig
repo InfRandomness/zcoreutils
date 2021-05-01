@@ -33,7 +33,7 @@ pub fn main() !void {
         std.fs.cwd().makeDir(path) catch |err| {
             _ = switch (err) {
                 error.FileNotFound => try stdout.print("Could not create the directory\n", .{}),
-                error.EEXIST => stdout.print("The directory already exists\n", .{}),
+                error.PathAlreadyExists => try stdout.print("The directory already exists\n", .{}),
                 else => unreachable
             };
         };
