@@ -22,14 +22,13 @@ pub fn build(b: *std.build.Builder) !void {
 
     var iterator = src.iterate();
     while (try iterator.next()) |file| {
-        var token = std.mem.tokenize(file.name, ".");
-        const name = token.next();
+        const name = std.mem.tokenize(file.name, ".").next().?;
 
         var alloc_join = std.heap.GeneralPurposeAllocator(.{}){};
         defer _ = alloc_join.deinit();
         
         const path = try std.fs.path.join(&alloc_join.allocator, &[_][]const u8{"src", file.name});
-        const exe = b.addExecutable(file.name, path);
+        const exe = b.addExecutable(name, path);
         alloc_join.allocator.free(path);
         exe.setTarget(target);
         exe.setBuildMode(mode);
