@@ -11,10 +11,12 @@ pub fn main() !void {
     const ops = try args.parseForCurrentProcess(struct {
         help: bool = false,
         recursive: bool = false,
+        verbose: bool = false,
 
         pub const shorthands = .{
             .h = "help",
-            .r = "recursive"
+            .r = "recursive",
+            .v = "verbose"
         };
     }, argsAllocator);
     defer ops.deinit();
@@ -27,15 +29,19 @@ pub fn main() !void {
 
     var path = ops.positionals[ops.positionals.len - 1];
 
-    if (ops.options.recursive) {
+    if(createDir(path, ops.options.recursive)) {
+        if (ops.options.verbose) try stdout.print("Created directory {s}\n", .{path});
+    } else |err| switch(err) {
+        error.FileNotFound => try stdout.print("Could not create the directory\n", .{}),
+        error.PathAlreadyExists => try stdout.print("The directory already exists\n", .{}),
+        else => unreachable,
+    }
+}
+
+fn createDir(path: []const u8, recursive: bool) !void {
+    if (recursive) {
         try std.fs.cwd().makePath(path);
     } else {
-        std.fs.cwd().makeDir(path) catch |err| {
-            _ = switch (err) {
-                error.FileNotFound => try stdout.print("Could not create the directory\n", .{}),
-                error.PathAlreadyExists => try stdout.print("The directory already exists\n", .{}),
-                else => unreachable
-            };
-        };
+        try std.fs.cwd().makeDir(path);
     }
 }
