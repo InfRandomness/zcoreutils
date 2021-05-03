@@ -1,5 +1,5 @@
 const std = @import("std");
-const args = @import("args");
+const args = @import("zig-args");
 const io = std.io;
 const heap = std.heap;
 const math = std.math;

@@ -1,4 +1,5 @@
 const std = @import("std");
+const deps = @import("./deps.zig");
 const writer = std.io.getStdOut.writer();
 
 pub fn build(b: *std.build.Builder) !void {
@@ -32,7 +33,7 @@ pub fn build(b: *std.build.Builder) !void {
         alloc_join.allocator.free(path);
         exe.setTarget(target);
         exe.setBuildMode(mode);
-        exe.addPackagePath("args", "libs/zig-args/args.zig");
+        deps.addAllTo(exe);
         exe.install();
         const run = exe.run();
         run.step.dependOn(b.getInstallStep());
