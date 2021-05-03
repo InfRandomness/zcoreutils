@@ -1,5 +1,5 @@
 const std = @import("std");
-const args = @import("zig-args");
+const args = @import("args");
 const io = std.io;
 const heap = std.heap;
 const math = std.math;
@@ -38,5 +38,6 @@ fn fetchFileContent(path: []const u8) !void {
         const len = try file.reader().read(&buffer);
         if (len == 0) break;
         try stdout.print("{s}", .{buffer[0..len]});
+        // os.sendfile(1, file.handle, , in_len: u64, headers: []const iovec_const, trailers: []const iovec_const, flags: u32)
     }
 }

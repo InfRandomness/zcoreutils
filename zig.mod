@@ -1,3 +1,3 @@
 name: zcoreutils
 dev_dependencies:
-    - src: git https://github.com/InfRandomness/zig-args.git branch-zigmod
+    - src: git https://github.com/MasterQ32/zig-args

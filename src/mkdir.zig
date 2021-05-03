@@ -1,5 +1,5 @@
 const std = @import("std");
-const args = @import("zig-args");
+const args = @import("args");
 const io = std.io;
 const os = std.os;
 
@@ -23,7 +23,7 @@ pub fn main() !void {
 
     if (ops.positionals.len < 1) {
         // TODO: make an intelligent help menu
-        try stdout.print("Usage {s} [OPTIONS] directory", .{ops.executable_name});
+        try stdout.print("Usage {s} [OPTIONS] directory\n", .{ops.executable_name});
         return;
     }
 
