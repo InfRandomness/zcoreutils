@@ -13,11 +13,7 @@ pub fn main() !void {
         recursive: bool = false,
         verbose: bool = false,
 
-        pub const shorthands = .{
-            .h = "help",
-            .r = "recursive",
-            .v = "verbose"
-        };
+        pub const shorthands = .{ .h = "help", .r = "recursive", .v = "verbose" };
     }, argsAllocator);
     defer ops.deinit();
 
@@ -29,9 +25,9 @@ pub fn main() !void {
 
     var path = ops.positionals[ops.positionals.len - 1];
 
-    if(createDir(path, ops.options.recursive)) {
+    if (createDir(path, ops.options.recursive)) {
         if (ops.options.verbose) try stdout.print("Created directory {s}\n", .{path});
-    } else |err| switch(err) {
+    } else |err| switch (err) {
         error.FileNotFound => try stdout.print("Could not create the directory\n", .{}),
         error.PathAlreadyExists => try stdout.print("The directory already exists\n", .{}),
         else => unreachable,

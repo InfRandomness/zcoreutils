@@ -14,7 +14,7 @@ pub fn build(b: *std.build.Builder) !void {
     const mode = b.standardReleaseOptions();
 
     const src = std.fs.cwd().openDir("src", .{ .iterate = true }) catch |err| {
-        _ = switch(err) {
+        _ = switch (err) {
             error.FileNotFound => std.debug.print("Directory has not been found.", .{}),
             else => std.debug.print("An error has occured", .{}),
         };
@@ -27,8 +27,8 @@ pub fn build(b: *std.build.Builder) !void {
 
         var alloc_join = std.heap.GeneralPurposeAllocator(.{}){};
         defer _ = alloc_join.deinit();
-        
-        const path = try std.fs.path.join(&alloc_join.allocator, &[_][]const u8{"src", file.name});
+
+        const path = try std.fs.path.join(&alloc_join.allocator, &[_][]const u8{ "src", file.name });
         const exe = b.addExecutable(name, path);
         alloc_join.allocator.free(path);
         exe.setTarget(target);
@@ -39,7 +39,7 @@ pub fn build(b: *std.build.Builder) !void {
         run.step.dependOn(b.getInstallStep());
         if (b.args) |args| run.addArgs(args);
 
-        const step = b.step(b.fmt("{s}: run", .{ name }), b.fmt("Run {s}", .{ name }));
+        const step = b.step(b.fmt("{s}: run", .{name}), b.fmt("Run {s}", .{name}));
         step.dependOn(&run.step);
     }
 }
