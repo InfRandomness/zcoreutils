@@ -27,13 +27,18 @@ pub fn main() !void {
         try stdout.print("{s}\n", .{line});
         gpa.allocator.free(line);
     } else {
-        try fetchFileContent(ops.positionals[ops.positionals.len - 1]);
+        var filename = ops.positionals[ops.positionals.len - 1];
+        if(std.fs.cwd().openFile(filename, .{ .read = true })) |file| {
+            try fetchFileContent(file);
+        } else |err| switch (err) {
+            error.FileNotFound => try stdout.print("Could not find the file {s} \n", .{filename}),
+            else => unreachable,
+        }
     }
 }
 
-fn fetchFileContent(path: []const u8) !void {
+fn fetchFileContent(file: std.fs.File) !void {
     var buffer: [4096]u8 = undefined;
-    const file = try std.fs.cwd().openFile(path, .{ .read = true });
     while (true) {
         const len = try file.reader().read(&buffer);
         if (len == 0) break;
