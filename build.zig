@@ -33,6 +33,7 @@ pub fn build(b: *std.build.Builder) !void {
         alloc_join.allocator.free(path);
         exe.setTarget(target);
         exe.setBuildMode(mode);
+        exe.addBuildOption([]const u8, "version", "0.0.1");
         deps.addAllTo(exe);
         exe.install();
         const run = exe.run();

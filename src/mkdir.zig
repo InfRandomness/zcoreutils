@@ -1,5 +1,6 @@
 const std = @import("std");
 const args = @import("args");
+const build_options = @import("build_options");
 const io = std.io;
 const os = std.os;
 
@@ -12,10 +13,17 @@ pub fn main() !void {
         help: bool = false,
         recursive: bool = false,
         verbose: bool = false,
+        version: bool = false,
 
+        //TODO: Decide whether we wanna change verbose's shorthand for something else or if we want to bind version to another shorthand / "V"
         pub const shorthands = .{ .h = "help", .r = "recursive", .v = "verbose" };
     }, argsAllocator);
     defer ops.deinit();
+
+    if (ops.options.version) {
+        try stdout.print("{s}\n", .{build_options.version});
+        return;
+    }
 
     if (ops.positionals.len < 1) {
         // TODO: make an intelligent help menu

@@ -1,5 +1,6 @@
 const std = @import("std");
 const args = @import("args");
+const build_options = @import("build_options");
 const io = std.io;
 const heap = std.heap;
 const math = std.math;
@@ -12,12 +13,18 @@ pub fn main() !void {
 
     const ops = try args.parseForCurrentProcess(struct {
         help: bool = false,
+        version: bool = false,
 
         pub const shorthands = .{
             .h = "help",
         };
     }, argsAllocator);
     defer ops.deinit();
+
+    if (ops.options.version) {
+        try stdout.print("{s}\n", .{build_options.version});
+        return;
+    }
 
     var gpa = heap.GeneralPurposeAllocator(.{}){};
     defer _ = gpa.deinit();
