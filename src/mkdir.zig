@@ -27,7 +27,7 @@ pub fn main() !void {
 
     if (ops.positionals.len < 1) {
         // TODO: make an intelligent help menu
-        try stdout.print("Usage {s} [OPTIONS] directory\n", .{ops.executable_name});
+        try stdout.print("Usage: {s} [OPTIONS] directory\n", .{ops.executable_name});
         return;
     }
 
