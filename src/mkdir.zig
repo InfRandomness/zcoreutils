@@ -11,12 +11,13 @@ pub fn main() !void {
 
     const ops = try args.parseForCurrentProcess(struct {
         help: bool = false,
+        //TODO: Decide whether we wanna create a dedicated --parents option that would have the same effect as --recursive/-r (-p)
         recursive: bool = false,
         verbose: bool = false,
         version: bool = false,
 
         //TODO: Decide whether we wanna change verbose's shorthand for something else or if we want to bind version to another shorthand / "V"
-        pub const shorthands = .{ .h = "help", .r = "recursive", .v = "verbose" };
+        pub const shorthands = .{ .h = "help", .r = "recursive", .p = "recursive", .v = "verbose" };
     }, argsAllocator);
     defer ops.deinit();
 
