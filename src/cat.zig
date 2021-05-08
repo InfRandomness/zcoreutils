@@ -36,6 +36,7 @@ pub fn main() !void {
     } else {
         var filename = ops.positionals[ops.positionals.len - 1];
         if (std.fs.cwd().openFile(filename, .{ .read = true })) |file| {
+            defer file.close();
             try fetchFileContent(file);
         } else |err| switch (err) {
             error.FileNotFound => try stdout.print("Could not find the file {s} \n", .{filename}),
