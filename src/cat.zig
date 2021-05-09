@@ -4,7 +4,6 @@ const build_options = @import("build_options");
 const io = std.io;
 const heap = std.heap;
 const math = std.math;
-
 const stdout = io.getStdOut().writer();
 
 pub fn main() !void {
@@ -37,7 +36,7 @@ pub fn main() !void {
         var filename = ops.positionals[ops.positionals.len - 1];
         if (std.fs.cwd().openFile(filename, .{ .read = true })) |file| {
             defer file.close();
-            try fetchFileContent(file);
+            try printFileContent(file);
         } else |err| switch (err) {
             error.FileNotFound => try stdout.print("Could not find the file {s} \n", .{filename}),
             else => unreachable,
@@ -45,12 +44,8 @@ pub fn main() !void {
     }
 }
 
-fn fetchFileContent(file: std.fs.File) !void {
-    var buffer: [4096]u8 = undefined;
-    while (true) {
-        const len = try file.reader().read(&buffer);
-        if (len == 0) break;
-        try stdout.print("{s}", .{buffer[0..len]});
-        // os.sendfile(1, file.handle, , in_len: u64, headers: []const iovec_const, trailers: []const iovec_const, flags: u32)
-    }
+fn printFileContent(file: std.fs.File) !void {
+    var stat = try file.stat();
+    var result = try std.os.mmap(null, stat.size, std.os.PROT_READ, std.os.MAP_PRIVATE, file.handle, 0);
+    try stdout.print("{s}\n", .{result});
 }
