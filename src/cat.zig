@@ -45,7 +45,12 @@ pub fn main() !void {
 }
 
 fn printFileContent(file: std.fs.File) !void {
-    var stat = try file.stat();
-    var result = try std.os.mmap(null, stat.size, std.os.PROT_READ, std.os.MAP_PRIVATE, file.handle, 0);
-    try stdout.print("{s}\n", .{result});
+    const empty_iovec = [0]std.os.iovec_const{};
+    var offset: u64 = 0;
+    sendfile_loop: while(true) {
+        const sendfile = try std.os.sendfile(std.os.STDOUT_FILENO, file.handle, offset, 0, &empty_iovec, &empty_iovec, 0);
+        if (sendfile == 0) break :sendfile_loop;
+        offset += sendfile;
+    }
 }
+
