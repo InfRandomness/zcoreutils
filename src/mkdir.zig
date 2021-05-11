@@ -7,17 +7,18 @@ const os = std.os;
 pub fn main() !void {
     var argsAllocator = std.heap.page_allocator;
     const stdout = io.getStdOut().writer();
-    const stdin = io.getStdIn().reader();
 
     const ops = try args.parseForCurrentProcess(struct {
         help: bool = false,
-        //TODO: Decide whether we wanna create a dedicated --parents option that would have the same effect as --recursive/-r (-p)
+
+        // Options to tell the program there is multiple separators
+        parents: bool = false,
         recursive: bool = false,
+
         verbose: bool = false,
         version: bool = false,
 
-        //TODO: Decide whether we wanna change verbose's shorthand for something else or if we want to bind version to another shorthand / "V"
-        pub const shorthands = .{ .h = "help", .r = "recursive", .p = "recursive", .v = "verbose" };
+        pub const shorthands = .{ .h = "help", .r = "recursive", .p = "recursive", .v = "version", .V = "verbose" };
     }, argsAllocator);
     defer ops.deinit();
 
@@ -35,7 +36,7 @@ pub fn main() !void {
     var path = ops.positionals[ops.positionals.len - 1];
 
     if (createDir(path, ops.options.recursive)) {
-        if (ops.options.verbose) try stdout.print("Created directory {s}\n", .{path});
+        if (ops.options.verbose || ops.options.recursive) try stdout.print("Created directory {s}\n", .{path});
     } else |err| switch (err) {
         error.FileNotFound => try stdout.print("Could not create the directory\n", .{}),
         error.PathAlreadyExists => try stdout.print("The directory already exists\n", .{}),
