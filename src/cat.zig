@@ -47,10 +47,9 @@ pub fn main() !void {
 fn printFileContent(file: std.fs.File) !void {
     const empty_iovec = [0]std.os.iovec_const{};
     var offset: u64 = 0;
-    sendfile_loop: while(true) {
+    sendfile_loop: while (true) {
         const sendfile = try std.os.sendfile(std.os.STDOUT_FILENO, file.handle, offset, 0, &empty_iovec, &empty_iovec, 0);
         if (sendfile == 0) break :sendfile_loop;
         offset += sendfile;
     }
 }
-
