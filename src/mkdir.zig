@@ -45,7 +45,7 @@ pub fn main() !void {
     var path = ops.positionals[ops.positionals.len - 1];
 
     if (createDir(path, ops.options.recursive)) {
-        if (ops.options.verbose || ops.options.recursive) try stdout.print("Created directory {s}\n", .{path});
+        if (ops.options.verbose or ops.options.recursive) try stdout.print("Created directory {s}\n", .{path});
     } else |err| switch (err) {
         error.FileNotFound => try stdout.print("Could not create the directory\n", .{}),
         error.PathAlreadyExists => try stdout.print("The directory already exists\n", .{}),
