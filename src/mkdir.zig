@@ -3,10 +3,9 @@ const args = @import("args");
 const build_options = @import("build_options");
 const io = std.io;
 const os = std.os;
+const stdout = io.getStdOut().writer();
 
 pub fn main() !void {
-    const stdout = io.getStdOut().writer();
-
     var errorCollectorGPA = std.heap.GeneralPurposeAllocator(.{}){};
     defer _ = errorCollectorGPA.deinit();
     var collection = args.ErrorCollection.init(&errorCollectorGPA.allocator);

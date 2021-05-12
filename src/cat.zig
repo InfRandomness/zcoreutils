@@ -4,11 +4,11 @@ const build_options = @import("build_options");
 const io = std.io;
 const heap = std.heap;
 const math = std.math;
+const stdin = io.getStdIn().reader();
 const stdout = io.getStdOut().writer();
 
 pub fn main() !void {
     var errorCollectorGPA = std.heap.GeneralPurposeAllocator(.{}){};
-    const stdin = io.getStdIn().reader();
     defer _ = errorCollectorGPA.deinit();
     var collection = args.ErrorCollection.init(&errorCollectorGPA.allocator);
     defer _ = collection.deinit();
