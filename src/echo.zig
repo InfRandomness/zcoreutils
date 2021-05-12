@@ -5,16 +5,26 @@ const io = std.io;
 const os = std.os;
 
 pub fn main() !void {
-    var argsAllocator = std.heap.page_allocator;
     const stdout = io.getStdOut().writer();
     const stdin = io.getStdIn().reader();
 
-    const ops = try args.parseForCurrentProcess(struct {
+    var errorCollectorGPA = std.heap.GeneralPurposeAllocator(.{}){};
+    defer _ = errorCollectorGPA.deinit();
+    var collection = args.ErrorCollection.init(&errorCollectorGPA.allocator);
+    defer _ = collection.deinit();
+
+    var argsAllocator = std.heap.page_allocator;
+    const ops = args.parseForCurrentProcess(struct {
         help: bool = false,
         version: bool = false,
 
         pub const shorthands = .{ .h = "help", .v = "version" };
-    }, argsAllocator);
+    }, argsAllocator, args.ErrorHandling{ .collect = &collection }) catch {
+        for (collection.errors()) |err| {
+            try stdout.print("{}\n", .{err});
+        }
+        return;
+    };
     defer ops.deinit();
 
     if (ops.options.version) {

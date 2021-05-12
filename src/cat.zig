@@ -7,17 +7,26 @@ const math = std.math;
 const stdout = io.getStdOut().writer();
 
 pub fn main() !void {
-    var argsAllocator = std.heap.page_allocator;
+    var errorCollectorGPA = std.heap.GeneralPurposeAllocator(.{}){};
     const stdin = io.getStdIn().reader();
+    defer _ = errorCollectorGPA.deinit();
+    var collection = args.ErrorCollection.init(&errorCollectorGPA.allocator);
+    defer _ = collection.deinit();
 
-    const ops = try args.parseForCurrentProcess(struct {
+    var argsAllocator = std.heap.page_allocator;
+    const ops = args.parseForCurrentProcess(struct {
         help: bool = false,
         version: bool = false,
 
         pub const shorthands = .{
             .h = "help",
         };
-    }, argsAllocator);
+    }, argsAllocator, args.ErrorHandling{ .collect = &collection }) catch {
+        for (collection.errors()) |err| {
+            try stdout.print("{}\n", .{err});
+        }
+        return;
+    };
     defer ops.deinit();
 
     if (ops.options.version) {
