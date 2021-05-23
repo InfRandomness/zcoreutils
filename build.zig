@@ -1,5 +1,4 @@
 const std = @import("std");
-const deps = @import("./deps.zig");
 const writer = std.io.getStdOut.writer();
 
 pub fn build(b: *std.build.Builder) !void {
@@ -34,7 +33,7 @@ pub fn build(b: *std.build.Builder) !void {
         exe.setTarget(target);
         exe.setBuildMode(mode);
         exe.addBuildOption([]const u8, "version", "0.0.1");
-        deps.addAllTo(exe);
+        exe.addPackagePath("args", "libs/args/args.zig");
         exe.install();
         const run = exe.run();
         run.step.dependOn(b.getInstallStep());
