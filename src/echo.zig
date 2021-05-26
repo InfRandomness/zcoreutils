@@ -14,9 +14,10 @@ pub fn main() !void {
     var argsAllocator = std.heap.page_allocator;
     const ops = args.parseForCurrentProcess(struct {
         help: bool = false,
+        newline: bool = false,
         version: bool = false,
 
-        pub const shorthands = .{ .h = "help", .v = "version" };
+        pub const shorthands = .{ .h = "help", .v = "version", .n = "newline" };
     }, argsAllocator, args.ErrorHandling{ .collect = &collection }) catch {
         for (collection.errors()) |err| {
             try stdout.print("{}\n", .{err});
@@ -37,11 +38,11 @@ pub fn main() !void {
     }
 
     if (ops.positionals.len == 1) {
-        try stdout.print("{s}\n", .{ops.positionals[0]});
+        try stdout.print("{s}", .{ops.positionals[0]});
     } else {
         for (ops.positionals) |string| {
             try stdout.print("{s} ", .{string});
         }
-        try stdout.print("\n", .{});
     }
+    if (!ops.options.newline) try stdout.print("\n", .{});
 }
