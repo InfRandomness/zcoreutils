@@ -8,7 +8,5 @@ These tools aims at being at being flexible (ability to customize the arguments 
 ## Installation
 ### Build From Source
 [install zig](https://ziglang.org/download/)  
-[install zigmod](https://github.com/nektro/zigmod#build-from-source)  
-clone the repository: `git clone https://github.com/InfRandomness/zcoreutils.git`  
-fetch the dependencies: `zigmod fetch`  
+clone the repository with the modules: `git clone https://github.com/InfRandomness/zcoreutils.git --recurse-submodules`    
 build the tools: `zig build`
