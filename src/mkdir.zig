@@ -1,18 +1,12 @@
 const std = @import("std");
-const args = @import("args");
 const build_options = @import("build_options");
+const parse_helper = @import("helpers/parse.zig");
 const io = std.io;
 const os = std.os;
 const stdout = io.getStdOut().writer();
 
 pub fn main() !void {
-    var errorCollectorGPA = std.heap.GeneralPurposeAllocator(.{}){};
-    defer _ = errorCollectorGPA.deinit();
-    var collection = args.ErrorCollection.init(&errorCollectorGPA.allocator);
-    defer _ = collection.deinit();
-
-    var argsAllocator = std.heap.page_allocator;
-    const ops = args.parseForCurrentProcess(struct {
+    const ops = try parse_helper.parseArgs(struct {
         help: bool = false,
 
         // Options to tell the program there is multiple separators
@@ -23,12 +17,8 @@ pub fn main() !void {
         version: bool = false,
 
         pub const shorthands = .{ .h = "help", .r = "recursive", .p = "recursive", .v = "version", .V = "verbose" };
-    }, argsAllocator, args.ErrorHandling{ .collect = &collection }) catch {
-        for (collection.errors()) |err| {
-            try stdout.print("{}\n", .{err});
-        }
-        return;
-    };
+    });
+
     defer ops.deinit();
 
     if (ops.options.version) {

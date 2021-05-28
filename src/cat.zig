@@ -1,6 +1,6 @@
 const std = @import("std");
-const args = @import("args");
 const build_options = @import("build_options");
+const parse_helper = @import("helpers/parse.zig");
 const io = std.io;
 const heap = std.heap;
 const math = std.math;
@@ -8,25 +8,15 @@ const stdin = io.getStdIn().reader();
 const stdout = io.getStdOut().writer();
 
 pub fn main() !void {
-    var errorCollectorGPA = std.heap.GeneralPurposeAllocator(.{}){};
-    defer _ = errorCollectorGPA.deinit();
-    var collection = args.ErrorCollection.init(&errorCollectorGPA.allocator);
-    defer _ = collection.deinit();
-
-    var argsAllocator = std.heap.page_allocator;
-    const ops = args.parseForCurrentProcess(struct {
+    const ops = try parse_helper.parseArgs(struct {
         help: bool = false,
         version: bool = false,
 
         pub const shorthands = .{
             .h = "help",
         };
-    }, argsAllocator, args.ErrorHandling{ .collect = &collection }) catch {
-        for (collection.errors()) |err| {
-            try stdout.print("{}\n", .{err});
-        }
-        return;
-    };
+    });
+
     defer ops.deinit();
 
     if (ops.options.version) {
