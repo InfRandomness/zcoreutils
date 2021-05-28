@@ -22,6 +22,8 @@ pub fn build(b: *std.build.Builder) !void {
 
     var iterator = src.iterate();
     while (try iterator.next()) |file| {
+        // std.debug.print("name = {s}", .{file.name});
+        if (std.mem.indexOf(u8, file.name, ".") == null) continue;
         const name = std.mem.tokenize(file.name, ".").next().?;
 
         var alloc_join = std.heap.GeneralPurposeAllocator(.{}){};
