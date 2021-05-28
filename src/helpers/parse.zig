@@ -7,7 +7,7 @@ pub fn parseArgs(comptime Spec: type) !args.ParseArgsResult(Spec) {
 
     var collection = args.ErrorCollection.init(&errorCollectorGPA.allocator);
     defer _ = collection.deinit();
-    
+
     const ops = args.parseForCurrentProcess(Spec, std.heap.page_allocator, args.ErrorHandling{ .collect = &collection }) catch {
         for (collection.errors()) |err| {
             try std.io.getStdOut().writer().print("{}\n", .{err});
